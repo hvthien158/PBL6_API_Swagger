@@ -1,0 +1,267 @@
+openapi: 3.0.0
+info:
+  description: API documentation
+  version: 1.0.0
+  title: OpenAPI
+  license:
+    name: Apache-2.0
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: 'http://127.0.0.1:8000/api'
+paths:
+  /login:
+    post:
+      tags:
+        - Auth
+      summary: Sign in
+      operationId: login
+      requestBody:
+        $ref: "#/components/requestBodies/Login"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                properties:
+                  access_token:
+                    type: string
+                    example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9
+                  token_type:
+                    type: string
+                    example: bearer
+                  expires_at:
+                    type: string
+                    example: 2023-09-25 12:24:04
+                  user:
+                    $ref: "#/components/schemas/User"
+        422:
+          description: Wrong credentials response
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    example: Validate Fail
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+  /register:
+    post:
+      tags:
+        - Auth
+      summary: Register new account
+      operationId: register
+      requestBody:
+        $ref: "#/components/requestBodies/Register"
+      responses:
+        201:
+          description: Success
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: User successfully registered
+                  user:
+                    $ref: "#/components/schemas/User"
+        422:
+          description: Wrong credentials response
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    example: Validate Fail
+  /logout:
+    post:
+      tags:
+        - Auth
+      summary: Sign out
+      operationId: logout
+      responses:
+        200:
+          description: Success
+        401:
+          description: Authorization
+      security:
+        - bearer_token: []
+  /change_pass:
+    post:
+      tags:
+        - Auth
+      summary: Change password
+      operationId: changePass
+      requestBody: 
+        $ref: "#/components/requestBodies/ChangePass"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                properties:
+                  token:
+                    type: string
+                    example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9
+        400:
+          description: Password incorrect
+        401:
+          description: Authorization
+  /user/all:
+    get:
+      tags:
+        - User
+      summary: Get all user
+      operationId: getAllUser
+      responses:
+        201:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /user/{user_id}:
+    get:
+      tags:
+        - User
+      summary: Get user profile
+      operationId: getUserInfo
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: number
+            example: 1
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+components:
+  securitySchemes:
+    bearer_token:
+      type: http
+      scheme: bearer
+      description: 'Enter token in format (Bearer Token)'
+      name: Authorization
+      in: header
+  requestBodies:
+    Login:
+      required: true
+      content:
+        application/json:
+          schema:
+            required:
+              - username
+              - password
+            properties:
+              username:
+                type: string
+                example: example
+              password:
+                type: string
+                example: 123456
+    Register:
+      required: true
+      content:
+        application/json:
+          schema:
+            required:
+              - username
+              - name
+              - email
+              - password
+              - password_confirmation
+            properties:
+              username:
+                type: string
+                example: example
+              name:
+                type: string
+                example: Example
+              email:
+                type: string
+                example: example@gmail.com
+              password:
+                type: string
+                example: 123456
+              password_confirmation:
+                type: string
+                example: 123456
+    ChangePass:
+      required: true
+      content:
+        application/json:
+          schema:
+            required:
+              - old_password
+              - new_password
+            properties:
+              old_password:
+                type: string
+                example: 123456
+              new_password:
+                type: string
+                example: 654321
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        username:
+          type: string
+          example: Example
+        email:
+          type: string
+          example: example@gmail.com
+    UserDetail:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        username:
+          type: string
+          example: Example
+        email:
+          type: string
+          example: example@gmail.com
+        name:
+          type: string
+          example: Nguyễn Văn Example
+        nation:
+          type: string
+          example: AmeriTho
+        gender:
+          type: string
+          example: Nam
+        address:
+          type: string
+          example: Cam Le District
+        date_of_birth:
+          type: string
+          example: 2023-09-25 12:24:04
+        phone:
+          type: string
+          example: 0123456789
+        identification:
+          type: string
+          example: xxxxxxxxx
+
